@@ -11,95 +11,218 @@
     <audio id="wrong-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
     <audio id="win-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
     <audio id="lose-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3"></audio>
+    <audio id="join-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3"></audio>
+    <audio id="start-round-sound" preload="auto" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-complete-or-approved-mission-205.mp3"></audio>
   </head>
   <body>
     <h1><b><span>Hangman</span></b></h1>
-    <p>Find the hidden word - Press a letter</p>
     
-    <div class="game-stats">
-      <div class="timer">
-        <i class="fas fa-clock"></i> <span id="timer">60</span>s
-      </div>
-      <div class="streak">
-        <i class="fas fa-fire"></i> Streak: <span id="streak-count">0</span>
-      </div>
-      <div class="difficulty">
-        <i class="fas fa-chart-line"></i> Level: <span id="difficulty-level">1</span>
+    <!-- Game Mode Selection -->
+    <div class="mode-selection" id="mode-selection">
+      <p>Choose your game mode</p>
+      <div class="mode-buttons">
+        <button id="single-player-btn" class="mode-btn">
+          <i class="fas fa-user"></i> Single Player
+        </button>
+        <button id="create-room-btn" class="mode-btn">
+          <i class="fas fa-plus-circle"></i> Create Room
+        </button>
+        <button id="join-room-btn" class="mode-btn">
+          <i class="fas fa-sign-in-alt"></i> Join Room
+        </button>
       </div>
     </div>
     
-    <p><div class="word-info" id="word-info"></div></p> <!-- This is where the word info will be shown -->
-    
-    <!-- Particle effects container -->
-    <div class="particles-container" id="particles-container"></div>
-    
-    <!-- Word definition tooltip -->
-    <div class="tooltip" id="word-tooltip">
-      <div class="tooltip-content">
-        <h3 id="tooltip-title"></h3>
-        <p id="tooltip-definition"></p>
+    <!-- Room Creation Panel -->
+    <div class="multiplayer-panel" id="create-room-panel" style="display: none;">
+      <div class="room-info">
+        <h2>Room Code: <span id="room-code">----</span></h2>
+        <p>Share this code with friends to join your room</p>
+        <button id="copy-code-btn" class="action-btn">
+          <i class="fas fa-copy"></i> Copy Code
+        </button>
+      </div>
+      <div class="player-list">
+        <h3><i class="fas fa-users"></i> Players (<span id="player-count">1</span>/8)</h3>
+        <ul id="players-list">
+          <li class="player host">You (Host) <span class="host-badge">Host</span></li>
+        </ul>
+      </div>
+      <div class="host-controls">
+        <button id="start-round-btn" class="action-btn" disabled>
+          <i class="fas fa-play"></i> Start Round
+        </button>
+        <button id="close-room-btn" class="action-btn secondary">
+          <i class="fas fa-times-circle"></i> Close Room
+        </button>
       </div>
     </div>
     
-    <div class="game-container">
-      <svg height="350" width="200" class="figure-container">
-        <!-- rod -->
-        <line x1="60" y1="20" x2="140" y2="20" />
-        <line x1="140" y1="20" x2="140" y2="50" />
-        <line x1="60" y1="20" x2="60" y2="230" />
-        <line x1="20" y1="230" x2="100" y2="230" />
-        <!-- head -->
-        <circle cx="140" cy="70" r="20" class="figure-part" />
-        <!-- body -->
-        <line x1="140" y1="90" x2="140" y2="150" class="figure-part" />
-        <!-- arms -->
-        <line x1="140" y1="120" x2="120" y2="100" class="figure-part" />
-        <line x1="140" y1="120" x2="160" y2="100" class="figure-part" />
-        <!-- legs -->
-        <line x1="140" y1="150" x2="120" y2="180" class="figure-part" />
-        <line x1="140" y1="150" x2="160" y2="180" class="figure-part" />
-      </svg>
-      <div class="wrong-letters-container">
-        <div id="wrong-letters"></div>
+    <!-- Room Joining Panel -->
+    <div class="multiplayer-panel" id="join-room-panel" style="display: none;">
+      <h2>Join a Room</h2>
+      <div class="join-form">
+        <input type="text" id="room-code-input" placeholder="Enter room code" maxlength="4">
+        <input type="text" id="player-name-input" placeholder="Your name" maxlength="15">
+        <button id="join-room-submit-btn" class="action-btn">
+          <i class="fas fa-sign-in-alt"></i> Join
+        </button>
       </div>
-      <div class="word" id="word"></div>
+      <button id="back-from-join-btn" class="action-btn secondary">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
     </div>
     
-    <!-- Virtual Keyboard for mobile users -->
-    <div class="keyboard-container" id="keyboard-container">
-      <div class="keyboard-row">
-        <button class="key">q</button>
-        <button class="key">w</button>
-        <button class="key">e</button>
-        <button class="key">r</button>
-        <button class="key">t</button>
-        <button class="key">y</button>
-        <button class="key">u</button>
-        <button class="key">i</button>
-        <button class="key">o</button>
-        <button class="key">p</button>
+    <!-- Waiting Room Panel (for joined players) -->
+    <div class="multiplayer-panel" id="waiting-room-panel" style="display: none;">
+      <h2>Waiting for Host to Start</h2>
+      <div class="room-info">
+        <p>Room Code: <span id="joined-room-code">----</span></p>
       </div>
-      <div class="keyboard-row">
-        <button class="key">a</button>
-        <button class="key">s</button>
-        <button class="key">d</button>
-        <button class="key">f</button>
-        <button class="key">g</button>
-        <button class="key">h</button>
-        <button class="key">j</button>
-        <button class="key">k</button>
-        <button class="key">l</button>
+      <div class="player-list">
+        <h3><i class="fas fa-users"></i> Players in Room</h3>
+        <ul id="waiting-players-list"></ul>
       </div>
-      <div class="keyboard-row">
-        <button class="key">z</button>
-        <button class="key">x</button>
-        <button class="key">c</button>
-        <button class="key">v</button>
-        <button class="key">b</button>
-        <button class="key">n</button>
-        <button class="key">m</button>
+      <button id="leave-room-btn" class="action-btn secondary">
+        <i class="fas fa-sign-out-alt"></i> Leave Room
+      </button>
+    </div>
+    
+    <!-- Multiplayer Round Results -->
+    <div class="multiplayer-panel" id="round-results-panel" style="display: none;">
+      <h2 id="round-result-title">Round Results</h2>
+      <div id="winner-display">
+        <p><span id="winner-name">Player1</span> won the round!</p>
+        <p>Time: <span id="winner-time">2.4</span>s</p>
+      </div>
+      <div class="player-scores">
+        <h3>Scores</h3>
+        <ul id="player-scores-list"></ul>
+      </div>
+      <div id="host-next-controls" style="display: none;">
+        <button id="next-round-btn" class="action-btn">
+          <i class="fas fa-forward"></i> Next Round
+        </button>
+        <button id="end-game-btn" class="action-btn secondary">
+          <i class="fas fa-power-off"></i> End Game
+        </button>
+      </div>
+      <div id="player-waiting-message" style="display: none;">
+        <p>Waiting for host to start next round...</p>
       </div>
     </div>
+    
+    <!-- Game Interface (shown during actual gameplay) -->
+    <div id="game-interface" style="display: none;">
+      <p id="game-instruction">Find the hidden word - Press a letter</p>
+    
+      <div class="game-stats">
+        <div class="timer">
+          <i class="fas fa-clock"></i> <span id="timer">60</span>s
+        </div>
+        <div class="streak">
+          <i class="fas fa-fire"></i> Streak: <span id="streak-count">0</span>
+        </div>
+        <div class="difficulty">
+          <i class="fas fa-chart-line"></i> Level: <span id="difficulty-level">1</span>
+        </div>
+        <!-- Multiplayer score display -->
+        <div class="mp-score" id="mp-score-display" style="display: none;">
+          <i class="fas fa-trophy"></i> Score: <span id="mp-score">0</span>
+        </div>
+      </div>
+      
+      <!-- Multiplayer round timer -->
+      <div class="mp-round-timer" id="mp-round-timer" style="display: none;">
+        <div class="mp-timer-bar">
+          <div class="mp-timer-progress" id="mp-timer-progress"></div>
+        </div>
+        <div class="mp-timer-text">
+          <span id="mp-timer-value">Get Ready!</span>
+        </div>
+      </div>
+      
+      <p><div class="word-info" id="word-info"></div></p> <!-- This is where the word info will be shown -->
+      
+      <!-- Particle effects container -->
+      <div class="particles-container" id="particles-container"></div>
+      
+      <!-- Word definition tooltip -->
+      <div class="tooltip" id="word-tooltip">
+        <div class="tooltip-content">
+          <h3 id="tooltip-title"></h3>
+          <p id="tooltip-definition"></p>
+        </div>
+      </div>
+      
+      <div class="game-container">
+        <svg height="350" width="200" class="figure-container">
+          <!-- rod -->
+          <line x1="60" y1="20" x2="140" y2="20" />
+          <line x1="140" y1="20" x2="140" y2="50" />
+          <line x1="60" y1="20" x2="60" y2="230" />
+          <line x1="20" y1="230" x2="100" y2="230" />
+          <!-- head -->
+          <circle cx="140" cy="70" r="20" class="figure-part" />
+          <!-- body -->
+          <line x1="140" y1="90" x2="140" y2="150" class="figure-part" />
+          <!-- arms -->
+          <line x1="140" y1="120" x2="120" y2="100" class="figure-part" />
+          <line x1="140" y1="120" x2="160" y2="100" class="figure-part" />
+          <!-- legs -->
+          <line x1="140" y1="150" x2="120" y2="180" class="figure-part" />
+          <line x1="140" y1="150" x2="160" y2="180" class="figure-part" />
+        </svg>
+        <div class="wrong-letters-container">
+          <div id="wrong-letters"></div>
+        </div>
+        <div class="word" id="word"></div>
+      </div>
+      
+      <!-- Multiplayer answer submission -->
+      <div class="mp-answer-container" id="mp-answer-container" style="display: none;">
+        <input type="text" id="mp-answer-input" placeholder="Type your answer here..." autocomplete="off">
+        <button id="mp-submit-answer" class="action-btn">
+          <i class="fas fa-paper-plane"></i> Submit
+        </button>
+      </div>
+      
+      <!-- Virtual Keyboard for mobile users -->
+      <div class="keyboard-container" id="keyboard-container">
+        <div class="keyboard-row">
+          <button class="key">q</button>
+          <button class="key">w</button>
+          <button class="key">e</button>
+          <button class="key">r</button>
+          <button class="key">t</button>
+          <button class="key">y</button>
+          <button class="key">u</button>
+          <button class="key">i</button>
+          <button class="key">o</button>
+          <button class="key">p</button>
+        </div>
+        <div class="keyboard-row">
+          <button class="key">a</button>
+          <button class="key">s</button>
+          <button class="key">d</button>
+          <button class="key">f</button>
+          <button class="key">g</button>
+          <button class="key">h</button>
+          <button class="key">j</button>
+          <button class="key">k</button>
+          <button class="key">l</button>
+        </div>
+        <div class="keyboard-row">
+          <button class="key">z</button>
+          <button class="key">x</button>
+          <button class="key">c</button>
+          <button class="key">v</button>
+          <button class="key">b</button>
+          <button class="key">n</button>
+          <button class="key">m</button>
+        </div>
+      </div>
+    </div> <!-- End of game-interface -->
     
     <!-- Popup -->
     <div class="popup-container" id="popup-container">
@@ -109,10 +232,17 @@
         <button id="play-button">Play Again</button>
       </div>
     </div>
+    
     <!-- Notification -->
     <div class="notification-container" id="notification-container">
       <p>You have already entered this letter</p>
     </div>
+    
+    <!-- Multiplayer Notifications -->
+    <div class="mp-notification" id="mp-notification">
+      <p id="mp-notification-text"></p>
+    </div>
     <script src="script.js"></script>
+    <script src="multiplayer.js"></script>
   </body>
 </html>
