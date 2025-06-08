@@ -908,3 +908,24 @@ keys.forEach(key => {
   key.setAttribute('tabindex', '0');
   key.setAttribute('aria-label', `Letter ${key.textContent}`);
 });
+
+// Expose necessary functions and variables for multiplayer
+window.playAgain = function() { playAgainButton.click(); };
+window.selectRandomWord = selectWordByDifficulty;
+window.displayWord = displayWord;
+window.updateWrongLettersElement = updateWrongLettersElement;
+window.showWordDefinition = showWordDefinition;
+window.createConfetti = createConfetti;
+window.updateKeyboardState = updateKeyboardState;
+window.positionTooltip = positionTooltip;
+
+// Variables that need to be accessible from multiplayer.js
+window.selectedWord = selectedWord;
+window.selectedWordDefinition = selectedWordDefinition;
+window.correctLetters = correctLetters;
+window.wrongLetters = wrongLetters;
+window.playable = playable;
+window.soundEnabled = soundEnabled;
+window.particlesEnabled = particlesEnabled;
+window.winSound = winSound;
+window.loseSound = loseSound;
