@@ -171,6 +171,8 @@ function joinRoom() {
   // Set player name and room code
   currentPlayer.name = playerName;
   roomCode = inputCode;
+  isMultiplayer = true;
+  isHost = false; // The joining player is not the host
   
   // Show waiting room
   hideAllSections();
@@ -183,46 +185,88 @@ function joinRoom() {
 
 function simulateOtherPlayers() {
   // For demo purposes only - in a real implementation, this would be handled by the server
-  const hostPlayer = {
-    id: generatePlayerId(),
-    name: 'Host',
-    score: 0,
-    isHost: true
-  };
+  // In a real implementation with Socket.io, we would receive the current players from the server
+  // For now, we'll simulate as if we're joining an existing room with a host
   
-  players = [hostPlayer, currentPlayer];
+  // Create a host player if we're not the host
+  if (!isHost) {
+    const hostPlayer = {
+      id: generatePlayerId(),
+      name: 'Host',
+      score: 0,
+      isHost: true
+    };
+    
+    // Clear existing players array and add host and current player
+    players = [];
+    players.push(hostPlayer);
+    players.push(currentPlayer);
+  } else {
+    // If we are the host, we should already be in the players array
+    // This shouldn't happen in normal flow, but adding as a safeguard
+    if (players.length === 0) {
+      players = [currentPlayer];
+    }
+  }
   
   // Simulate other players joining
   setTimeout(() => {
     if (soundEnabled) joinSound.play();
-    players.push({
+    const player3 = {
       id: generatePlayerId(),
       name: 'Player 3',
       score: 0,
       isHost: false
-    });
+    };
+    players.push(player3);
+    
+    // Update both player lists to ensure host and players see the same list
     updateJoinedPlayerList();
+    updatePlayerList();
+    
+    // Enable start button if host and enough players
+    if (isHost && players.length >= 2) {
+      startRoundBtn.disabled = false;
+    }
+    
     showMpNotification('Player 3 joined the room');
   }, 2000);
   
   setTimeout(() => {
     if (soundEnabled) joinSound.play();
-    players.push({
+    const player4 = {
       id: generatePlayerId(),
       name: 'Player 4',
       score: 0,
       isHost: false
-    });
+    };
+    players.push(player4);
+    
+    // Update both player lists to ensure host and players see the same list
     updateJoinedPlayerList();
+    updatePlayerList();
+    
+    // Enable start button if host and enough players
+    if (isHost && players.length >= 2) {
+      startRoundBtn.disabled = false;
+    }
+    
     showMpNotification('Player 4 joined the room');
   }, 4000);
   
+  // Update both player lists to ensure host and players see the same list
   updateJoinedPlayerList();
+  updatePlayerList();
   
-  // Simulate host starting the game after a delay
+  // Enable start button if host and enough players
+  if (isHost && players.length >= 2) {
+    startRoundBtn.disabled = false;
+  }
+  
+  // In a real implementation, the host would manually start the game
+  // We'll show a notification that the room is ready
   setTimeout(() => {
-    showMpNotification('Host is starting the round...', 2000);
-    setTimeout(() => startMultiplayerRound(), 2000);
+    showMpNotification('Room is ready! Waiting for host to start the game...', 3000);
   }, 6000);
 }
 
